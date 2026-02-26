@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
+import { useTheme } from '../contexts/ThemeContext';
 import FriendList from '../components/FriendList';
 import FriendRequests from '../components/FriendRequests';
 import MessageArea from '../components/MessageArea';
@@ -9,6 +10,7 @@ import './Chat.css';
 
 function Chat() {
   const navigate = useNavigate();
+  const { theme, toggleTheme } = useTheme();
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
   const [selectedFriend, setSelectedFriend] = useState(null);
@@ -16,8 +18,10 @@ function Chat() {
   const [showProfile, setShowProfile] = useState(false);
   const [refreshFriends, setRefreshFriends] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [onlineUsers, setOnlineUsers] = useState({});
+  const presenceChannelRef = useRef(null);
 
-  // Verificar sesión del usuario
+  // Verificar sesion del usuario
   useEffect(() => {
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -42,7 +46,7 @@ function Chat() {
 
     checkSession();
 
-    // Escuchar cambios de autenticación
+    // Escuchar cambios de autenticacion
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         if (event === 'SIGNED_OUT') {
@@ -54,8 +58,42 @@ function Chat() {
     return () => subscription.unsubscribe();
   }, [navigate]);
 
-  // Cerrar sesión
+  // Presence: rastrear usuarios en linea
+  useEffect(() => {
+    if (!user) return;
+
+    const channel = supabase.channel('online-users', {
+      config: { presence: { key: user.id } },
+    });
+
+    channel
+      .on('presence', { event: 'sync' }, () => {
+        const state = channel.presenceState();
+        const online = {};
+        Object.keys(state).forEach((userId) => {
+          online[userId] = true;
+        });
+        setOnlineUsers(online);
+      })
+      .subscribe(async (status) => {
+        if (status === 'SUBSCRIBED') {
+          await channel.track({ user_id: user.id, online_at: new Date().toISOString() });
+        }
+      });
+
+    presenceChannelRef.current = channel;
+
+    return () => {
+      channel.untrack();
+      supabase.removeChannel(channel);
+    };
+  }, [user?.id]);
+
+  // Cerrar sesion
   const handleLogout = async () => {
+    if (presenceChannelRef.current) {
+      await presenceChannelRef.current.untrack();
+    }
     await supabase.auth.signOut();
     navigate('/login');
   };
@@ -91,17 +129,24 @@ function Chat() {
           <div className="sidebar-actions">
             <button
               className="btn-icon"
+              onClick={toggleTheme}
+              title={theme === 'light' ? 'Modo oscuro' : 'Modo claro'}
+            >
+              {theme === 'light' ? '\u{1F319}' : '\u{2600}\u{FE0F}'}
+            </button>
+            <button
+              className="btn-icon"
               onClick={() => setShowFriendRequests(true)}
               title="Agregar amigos"
             >
-              👥
+              {'\u{1F465}'}
             </button>
             <button
               className="btn-icon"
               onClick={handleLogout}
-              title="Cerrar sesión"
+              title="Cerrar sesion"
             >
-              🚪
+              {'\u{1F6AA}'}
             </button>
           </div>
         </div>
@@ -112,11 +157,12 @@ function Chat() {
           selectedFriend={selectedFriend}
           onSelectFriend={setSelectedFriend}
           refreshTrigger={refreshFriends}
+          onlineUsers={onlineUsers}
         />
       </div>
 
-      {/* Área de mensajes */}
-      <MessageArea user={user} friend={selectedFriend} />
+      {/* Area de mensajes */}
+      <MessageArea user={user} friend={selectedFriend} onlineUsers={onlineUsers} />
 
       {/* Modales */}
       {showFriendRequests && (

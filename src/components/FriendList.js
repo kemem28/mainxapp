@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
 import './FriendList.css';
 
-function FriendList({ user, selectedFriend, onSelectFriend, refreshTrigger }) {
+function FriendList({ user, selectedFriend, onSelectFriend, refreshTrigger, onlineUsers }) {
   const [friends, setFriends] = useState([]);
   const [unreadCounts, setUnreadCounts] = useState({});
 
@@ -37,7 +37,7 @@ function FriendList({ user, selectedFriend, onSelectFriend, refreshTrigger }) {
 
     setFriends(profiles || []);
 
-    // Obtener conteo de mensajes no leídos por amigo
+    // Obtener conteo de mensajes no leidos por amigo
     const { data: unread } = await supabase
       .from('messages')
       .select('sender_id')
@@ -84,8 +84,8 @@ function FriendList({ user, selectedFriend, onSelectFriend, refreshTrigger }) {
 
       {friends.length === 0 ? (
         <div className="friend-list-empty">
-          <p>No tienes amigos aún.</p>
-          <p>Usa el botón de agregar amigos para empezar a chatear.</p>
+          <p>No tienes amigos aun.</p>
+          <p>Usa el boton de agregar amigos para empezar a chatear.</p>
         </div>
       ) : (
         <div className="friend-list-items">
@@ -95,11 +95,16 @@ function FriendList({ user, selectedFriend, onSelectFriend, refreshTrigger }) {
               className={`friend-item ${selectedFriend?.id === friend.id ? 'active' : ''}`}
               onClick={() => onSelectFriend(friend)}
             >
-              <div className="friend-avatar">
-                {friend.avatar_url ? (
-                  <img src={friend.avatar_url} alt="" />
-                ) : (
-                  <span>{(friend.display_name || friend.username)[0].toUpperCase()}</span>
+              <div className="friend-avatar-wrapper">
+                <div className="friend-avatar">
+                  {friend.avatar_url ? (
+                    <img src={friend.avatar_url} alt="" />
+                  ) : (
+                    <span>{(friend.display_name || friend.username)[0].toUpperCase()}</span>
+                  )}
+                </div>
+                {onlineUsers[friend.id] && (
+                  <div className="online-indicator" title="En linea" />
                 )}
               </div>
               <div className="friend-info">

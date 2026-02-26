@@ -1,18 +1,92 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { supabase } from '../supabaseClient';
 import './MessageArea.css';
 
-function MessageArea({ user, friend }) {
+function MessageArea({ user, friend, onlineUsers }) {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const [sending, setSending] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
+  const [friendIsTyping, setFriendIsTyping] = useState(false);
   const messagesEndRef = useRef(null);
   const fileInputRef = useRef(null);
+  const typingTimeoutRef = useRef(null);
+  const typingChannelRef = useRef(null);
 
   // Scroll al final cuando hay mensajes nuevos
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  // Canal de typing: broadcast para indicar que estamos escribiendo
+  useEffect(() => {
+    if (!friend) return;
+
+    const channelName = `typing-${[user.id, friend.id].sort().join('-')}`;
+    const channel = supabase.channel(channelName);
+
+    channel
+      .on('broadcast', { event: 'typing' }, (payload) => {
+        if (payload.payload.user_id === friend.id) {
+          setFriendIsTyping(true);
+          // Limpiar el timeout anterior
+          if (typingTimeoutRef.current) {
+            clearTimeout(typingTimeoutRef.current);
+          }
+          // Ocultar despues de 3 segundos sin recibir evento
+          typingTimeoutRef.current = setTimeout(() => {
+            setFriendIsTyping(false);
+          }, 3000);
+        }
+      })
+      .on('broadcast', { event: 'stop_typing' }, (payload) => {
+        if (payload.payload.user_id === friend.id) {
+          setFriendIsTyping(false);
+        }
+      })
+      .subscribe();
+
+    typingChannelRef.current = channel;
+
+    return () => {
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
+      setFriendIsTyping(false);
+      supabase.removeChannel(channel);
+    };
+  }, [friend?.id, user.id]);
+
+  // Emitir evento de typing
+  const emitTyping = useCallback(() => {
+    if (typingChannelRef.current) {
+      typingChannelRef.current.send({
+        type: 'broadcast',
+        event: 'typing',
+        payload: { user_id: user.id },
+      });
+    }
+  }, [user.id]);
+
+  const emitStopTyping = useCallback(() => {
+    if (typingChannelRef.current) {
+      typingChannelRef.current.send({
+        type: 'broadcast',
+        event: 'stop_typing',
+        payload: { user_id: user.id },
+      });
+    }
+  }, [user.id]);
+
+  // Manejar cambio en el input con debounce para typing
+  const handleInputChange = (e) => {
+    setNewMessage(e.target.value);
+
+    if (e.target.value.trim()) {
+      emitTyping();
+    } else {
+      emitStopTyping();
+    }
   };
 
   // Cargar mensajes
@@ -34,13 +108,13 @@ function MessageArea({ user, friend }) {
         },
         (payload) => {
           const msg = payload.new;
-          // Solo agregar si es de esta conversación
+          // Solo agregar si es de esta conversacion
           if (
             (msg.sender_id === user.id && msg.receiver_id === friend.id) ||
             (msg.sender_id === friend.id && msg.receiver_id === user.id)
           ) {
             setMessages((prev) => [...prev, msg]);
-            // Marcar como leído si somos el receptor
+            // Marcar como leido si somos el receptor
             if (msg.receiver_id === user.id) {
               markMessageRead(msg.id);
             }
@@ -84,7 +158,7 @@ function MessageArea({ user, friend }) {
     setMessages(data || []);
   };
 
-  // Marcar mensajes recibidos como leídos
+  // Marcar mensajes recibidos como leidos
   const markMessagesAsRead = async () => {
     await supabase
       .from('messages')
@@ -107,13 +181,14 @@ function MessageArea({ user, friend }) {
     if (!newMessage.trim() && !selectedFile) return;
 
     setSending(true);
+    emitStopTyping();
 
     let fileUrl = null;
     let fileName = null;
 
     // Si hay un archivo, subirlo primero
     if (selectedFile) {
-      // Validar tamaño (máximo 5MB)
+      // Validar tamano (maximo 5MB)
       if (selectedFile.size > 5 * 1024 * 1024) {
         alert('El archivo no puede ser mayor a 5MB');
         setSending(false);
@@ -188,9 +263,9 @@ function MessageArea({ user, friend }) {
   };
 
   // Verificar si es una imagen
-  const isImage = (fileName) => {
-    if (!fileName) return false;
-    const ext = fileName.split('.').pop().toLowerCase();
+  const isImage = (name) => {
+    if (!name) return false;
+    const ext = name.split('.').pop().toLowerCase();
     return ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext);
   };
 
@@ -207,25 +282,31 @@ function MessageArea({ user, friend }) {
 
   // Agrupar mensajes por fecha
   let lastDate = '';
+  const isOnline = onlineUsers && onlineUsers[friend.id];
 
   return (
     <div className="message-area">
       {/* Header del chat */}
       <div className="chat-header">
-        <div className="chat-header-avatar">
-          {friend.avatar_url ? (
-            <img src={friend.avatar_url} alt="" />
-          ) : (
-            <span>{(friend.display_name || friend.username)[0].toUpperCase()}</span>
-          )}
+        <div className="chat-header-avatar-wrapper">
+          <div className="chat-header-avatar">
+            {friend.avatar_url ? (
+              <img src={friend.avatar_url} alt="" />
+            ) : (
+              <span>{(friend.display_name || friend.username)[0].toUpperCase()}</span>
+            )}
+          </div>
+          {isOnline && <div className="chat-header-online-dot" />}
         </div>
         <div className="chat-header-info">
           <h3>{friend.display_name || friend.username}</h3>
-          <p>@{friend.username}</p>
+          <p className={friendIsTyping ? 'typing-status' : ''}>
+            {friendIsTyping ? 'escribiendo...' : isOnline ? 'en linea' : `@${friend.username}`}
+          </p>
         </div>
       </div>
 
-      {/* Área de mensajes */}
+      {/* Area de mensajes */}
       <div className="messages-container">
         {messages.map((msg) => {
           const msgDate = formatDate(msg.created_at);
@@ -262,7 +343,7 @@ function MessageArea({ user, friend }) {
                         rel="noopener noreferrer"
                         className="file-link"
                       >
-                        <span className="file-icon">📎</span>
+                        <span className="file-icon">{'\u{1F4CE}'}</span>
                         <span className="file-name">{msg.file_name}</span>
                       </a>
                     )}
@@ -277,7 +358,7 @@ function MessageArea({ user, friend }) {
                   <span className="message-time">{formatTime(msg.created_at)}</span>
                   {isMine && (
                     <span className={`read-status ${msg.is_read ? 'read' : ''}`}>
-                      {msg.is_read ? '✓✓' : '✓'}
+                      {msg.is_read ? '\u2713\u2713' : '\u2713'}
                     </span>
                   )}
                 </div>
@@ -300,13 +381,13 @@ function MessageArea({ user, friend }) {
                 if (fileInputRef.current) fileInputRef.current.value = '';
               }}
             >
-              ✕
+              {'\u2715'}
             </button>
           </div>
         )}
         <div className="message-input-row">
           <label className="btn-attach">
-            📎
+            {'\u{1F4CE}'}
             <input
               type="file"
               ref={fileInputRef}
@@ -317,12 +398,12 @@ function MessageArea({ user, friend }) {
           <input
             type="text"
             value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
+            onChange={handleInputChange}
             placeholder="Escribe un mensaje..."
             className="message-input"
           />
           <button type="submit" className="btn-send" disabled={sending}>
-            {sending ? '...' : '➤'}
+            {sending ? '...' : '\u27A4'}
           </button>
         </div>
       </form>

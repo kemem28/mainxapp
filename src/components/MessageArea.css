@@ -3,7 +3,7 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  background: #e5ddd5;
+  background: var(--bg-chat);
 }
 
 .message-area-empty {
@@ -11,16 +11,16 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  background: #f0f2f5;
+  background: var(--bg-primary);
 }
 
 .empty-state {
   text-align: center;
-  color: #667781;
+  color: var(--text-secondary);
 }
 
 .empty-state h2 {
-  color: #128c7e;
+  color: var(--accent);
   font-size: 28px;
   margin-bottom: 10px;
 }
@@ -30,16 +30,21 @@
   display: flex;
   align-items: center;
   padding: 10px 20px;
-  background: #f0f2f5;
-  border-bottom: 1px solid #e0e0e0;
+  background: var(--bg-input-area);
+  border-bottom: 1px solid var(--border-color);
   gap: 12px;
+}
+
+.chat-header-avatar-wrapper {
+  position: relative;
+  flex-shrink: 0;
 }
 
 .chat-header-avatar {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: #128c7e;
+  background: var(--accent);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -58,15 +63,33 @@
   font-size: 16px;
 }
 
+.chat-header-online-dot {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 10px;
+  height: 10px;
+  background: #25d366;
+  border-radius: 50%;
+  border: 2px solid var(--bg-input-area);
+}
+
 .chat-header-info h3 {
   margin: 0;
   font-size: 16px;
+  color: var(--text-primary);
 }
 
 .chat-header-info p {
   margin: 0;
   font-size: 12px;
-  color: #667781;
+  color: var(--text-secondary);
+  transition: color 0.2s;
+}
+
+.chat-header-info p.typing-status {
+  color: var(--accent);
+  font-style: italic;
 }
 
 /* Contenedor de mensajes */
@@ -86,8 +109,8 @@
 }
 
 .date-separator span {
-  background: #e1f3fb;
-  color: #333;
+  background: var(--bg-date-separator);
+  color: var(--text-primary);
   padding: 5px 14px;
   border-radius: 8px;
   font-size: 12px;
@@ -104,13 +127,13 @@
 
 .message-sent {
   align-self: flex-end;
-  background: #dcf8c6;
+  background: var(--bg-message-sent);
   border-bottom-right-radius: 4px;
 }
 
 .message-received {
   align-self: flex-start;
-  background: white;
+  background: var(--bg-message-received);
   border-bottom-left-radius: 4px;
 }
 
@@ -118,6 +141,7 @@
   margin: 0;
   font-size: 14px;
   line-height: 1.4;
+  color: var(--text-primary);
 }
 
 .message-meta {
@@ -130,16 +154,16 @@
 
 .message-time {
   font-size: 11px;
-  color: #667781;
+  color: var(--text-secondary);
 }
 
 .read-status {
   font-size: 14px;
-  color: #667781;
+  color: var(--text-secondary);
 }
 
 .read-status.read {
-  color: #53bdeb;
+  color: var(--read-status);
 }
 
 /* Archivos */
@@ -159,10 +183,10 @@
   align-items: center;
   gap: 8px;
   padding: 8px 12px;
-  background: rgba(0, 0, 0, 0.05);
+  background: var(--file-link-bg);
   border-radius: 6px;
   text-decoration: none;
-  color: #333;
+  color: var(--text-primary);
 }
 
 .file-icon {
@@ -177,8 +201,8 @@
 /* Input de mensaje */
 .message-input-area {
   padding: 10px 20px;
-  background: #f0f2f5;
-  border-top: 1px solid #e0e0e0;
+  background: var(--bg-input-area);
+  border-top: 1px solid var(--border-color);
 }
 
 .selected-file-preview {
@@ -186,10 +210,11 @@
   align-items: center;
   justify-content: space-between;
   padding: 8px 12px;
-  background: #e8f5e9;
+  background: var(--bg-file-preview);
   border-radius: 8px;
   margin-bottom: 8px;
   font-size: 13px;
+  color: var(--text-primary);
 }
 
 .selected-file-preview button {
@@ -197,7 +222,7 @@
   border: none;
   cursor: pointer;
   font-size: 16px;
-  color: #667781;
+  color: var(--text-secondary);
 }
 
 .message-input-row {
@@ -220,7 +245,12 @@
   border: none;
   border-radius: 24px;
   font-size: 14px;
-  background: white;
+  background: var(--bg-input);
+  color: var(--text-primary);
+}
+
+.message-input::placeholder {
+  color: var(--text-muted);
 }
 
 .message-input:focus {
@@ -231,7 +261,7 @@
   width: 42px;
   height: 42px;
   border-radius: 50%;
-  background: #128c7e;
+  background: var(--accent);
   color: white;
   border: none;
   font-size: 18px;
@@ -243,10 +273,10 @@
 }
 
 .btn-send:hover {
-  background: #0e7a6d;
+  background: var(--accent-hover);
 }
 
 .btn-send:disabled {
-  background: #a0c4bf;
+  background: var(--accent-disabled);
   cursor: not-allowed;
 }

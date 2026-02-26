@@ -3,11 +3,11 @@
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background-color: #f0f2f5;
+  background-color: var(--bg-primary);
 }
 
 .register-card {
-  background: white;
+  background: var(--bg-card);
   padding: 40px;
   border-radius: 12px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
@@ -17,33 +17,26 @@
 
 .register-card h1 {
   text-align: center;
-  color: #128c7e;
+  color: var(--accent);
   margin-bottom: 5px;
   font-size: 28px;
 }
 
 .register-subtitle {
   text-align: center;
-  color: #667781;
+  color: var(--text-secondary);
   margin-bottom: 25px;
-}
-
-.input-hint {
-  display: block;
-  margin-top: 4px;
-  color: #999;
-  font-size: 12px;
 }
 
 .register-footer {
   text-align: center;
   margin-top: 20px;
-  color: #667781;
+  color: var(--text-secondary);
   font-size: 14px;
 }
 
 .register-footer a {
-  color: #128c7e;
+  color: var(--accent);
   text-decoration: none;
   font-weight: 500;
 }

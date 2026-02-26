@@ -4,7 +4,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.5);
+  background: var(--bg-overlay);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -12,7 +12,7 @@
 }
 
 .friend-requests-card {
-  background: white;
+  background: var(--bg-card);
   padding: 25px;
   border-radius: 12px;
   width: 100%;
@@ -30,13 +30,13 @@
 
 .fr-header h2 {
   margin: 0;
-  color: #128c7e;
+  color: var(--accent);
 }
 
 .fr-section {
   margin-bottom: 20px;
   padding-bottom: 15px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--border-light);
 }
 
 .fr-section:last-child {
@@ -45,7 +45,7 @@
 
 .fr-section h3 {
   font-size: 14px;
-  color: #667781;
+  color: var(--text-secondary);
   margin-bottom: 10px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -59,19 +59,21 @@
 .fr-search-form input {
   flex: 1;
   padding: 10px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--border-color);
   border-radius: 8px;
   font-size: 14px;
+  background: var(--bg-input);
+  color: var(--text-primary);
 }
 
 .fr-search-form input:focus {
   outline: none;
-  border-color: #128c7e;
+  border-color: var(--accent);
 }
 
 .btn-search {
   padding: 10px 16px;
-  background: #128c7e;
+  background: var(--accent);
   color: white;
   border: none;
   border-radius: 8px;
@@ -80,13 +82,13 @@
 }
 
 .btn-search:hover {
-  background: #0e7a6d;
+  background: var(--accent-hover);
 }
 
 .fr-message {
   margin-top: 8px;
   font-size: 13px;
-  color: #667781;
+  color: var(--text-secondary);
 }
 
 .fr-search-result,
@@ -95,7 +97,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 10px;
-  background: #f8f9fa;
+  background: var(--bg-search-result);
   border-radius: 8px;
   margin-top: 10px;
 }
@@ -110,7 +112,7 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: #128c7e;
+  background: var(--accent);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -133,17 +135,18 @@
   margin: 0;
   font-weight: 500;
   font-size: 14px;
+  color: var(--text-primary);
 }
 
 .fr-username {
   margin: 0;
   font-size: 12px;
-  color: #667781;
+  color: var(--text-secondary);
 }
 
 .btn-add-friend {
   padding: 8px 14px;
-  background: #128c7e;
+  background: var(--accent);
   color: white;
   border: none;
   border-radius: 6px;
@@ -152,7 +155,7 @@
 }
 
 .btn-add-friend:hover {
-  background: #0e7a6d;
+  background: var(--accent-hover);
 }
 
 .fr-actions {
@@ -162,7 +165,7 @@
 
 .btn-accept {
   padding: 6px 12px;
-  background: #128c7e;
+  background: var(--accent);
   color: white;
   border: none;
   border-radius: 6px;
@@ -171,13 +174,13 @@
 }
 
 .btn-accept:hover {
-  background: #0e7a6d;
+  background: var(--accent-hover);
 }
 
 .btn-reject {
   padding: 6px 12px;
-  background: #e0e0e0;
-  color: #333;
+  background: var(--border-color);
+  color: var(--text-primary);
   border: none;
   border-radius: 6px;
   cursor: pointer;
@@ -185,20 +188,20 @@
 }
 
 .btn-reject:hover {
-  background: #ccc;
+  background: var(--bg-hover);
 }
 
 .fr-pending-badge {
   font-size: 12px;
-  color: #f39c12;
-  background: #fef9e7;
+  color: var(--pending-badge-text);
+  background: var(--pending-badge-bg);
   padding: 4px 10px;
   border-radius: 12px;
 }
 
 .fr-empty {
   font-size: 13px;
-  color: #999;
+  color: var(--text-muted);
   text-align: center;
   padding: 10px;
 }

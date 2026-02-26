@@ -1,27 +1,26 @@
 .friend-list {
-  width: 300px;
-  background: white;
-  border-right: 1px solid #e0e0e0;
+  background: var(--bg-secondary);
   display: flex;
   flex-direction: column;
-  height: 100%;
+  flex: 1;
+  overflow: hidden;
 }
 
 .friend-list-header {
   padding: 15px 20px;
-  border-bottom: 1px solid #e0e0e0;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .friend-list-header h3 {
   margin: 0;
-  color: #333;
+  color: var(--text-primary);
   font-size: 18px;
 }
 
 .friend-list-empty {
   padding: 30px 20px;
   text-align: center;
-  color: #999;
+  color: var(--text-muted);
   font-size: 14px;
 }
 
@@ -40,18 +39,23 @@
 }
 
 .friend-item:hover {
-  background: #f5f5f5;
+  background: var(--bg-hover);
 }
 
 .friend-item.active {
-  background: #e8f5e9;
+  background: var(--bg-active);
+}
+
+.friend-avatar-wrapper {
+  position: relative;
+  flex-shrink: 0;
 }
 
 .friend-avatar {
   width: 45px;
   height: 45px;
   border-radius: 50%;
-  background: #128c7e;
+  background: var(--accent);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -71,6 +75,17 @@
   font-size: 18px;
 }
 
+.online-indicator {
+  position: absolute;
+  bottom: 1px;
+  right: 1px;
+  width: 12px;
+  height: 12px;
+  background: #25d366;
+  border-radius: 50%;
+  border: 2px solid var(--bg-secondary);
+}
+
 .friend-info {
   flex: 1;
   min-width: 0;
@@ -83,16 +98,17 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  color: var(--text-primary);
 }
 
 .friend-username {
   margin: 0;
   font-size: 12px;
-  color: #667781;
+  color: var(--text-secondary);
 }
 
 .unread-badge {
-  background: #128c7e;
+  background: var(--accent);
   color: white;
   font-size: 12px;
   font-weight: bold;
