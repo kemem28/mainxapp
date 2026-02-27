@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
+import { HiXMark, HiMagnifyingGlass } from 'react-icons/hi2';
 import './FriendRequests.css';
 
 function FriendRequests({ user, onClose, onFriendAdded }) {
@@ -10,20 +11,17 @@ function FriendRequests({ user, onClose, onFriendAdded }) {
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // Cargar solicitudes pendientes
   useEffect(() => {
     loadRequests();
   }, [user.id]);
 
   const loadRequests = async () => {
-    // Solicitudes recibidas (pendientes)
     const { data: received } = await supabase
       .from('friend_requests')
       .select('*, from_user_profile:profiles!friend_requests_from_user_fkey(*)')
       .eq('to_user', user.id)
       .eq('status', 'pending');
 
-    // Solicitudes enviadas
     const { data: sent } = await supabase
       .from('friend_requests')
       .select('*, to_user_profile:profiles!friend_requests_to_user_fkey(*)')
@@ -34,7 +32,6 @@ function FriendRequests({ user, onClose, onFriendAdded }) {
     setSentRequests(sent || []);
   };
 
-  // Buscar usuario por username
   const handleSearch = async (e) => {
     e.preventDefault();
     setSearchResult(null);
@@ -49,7 +46,7 @@ function FriendRequests({ user, onClose, onFriendAdded }) {
       .single();
 
     if (error || !data) {
-      setMessage('No se encontró ese usuario');
+      setMessage('No se encontro ese usuario');
       return;
     }
 
@@ -61,12 +58,10 @@ function FriendRequests({ user, onClose, onFriendAdded }) {
     setSearchResult(data);
   };
 
-  // Enviar solicitud de amistad
   const handleSendRequest = async (toUserId) => {
     setLoading(true);
     setMessage('');
 
-    // Verificar si ya existe una solicitud o amistad
     const { data: existing } = await supabase
       .from('friend_requests')
       .select('*')
@@ -79,7 +74,6 @@ function FriendRequests({ user, onClose, onFriendAdded }) {
       } else if (req.status === 'pending') {
         setMessage('Ya existe una solicitud pendiente');
       } else {
-        // Si fue rechazada antes, crear una nueva
         const { error } = await supabase
           .from('friend_requests')
           .insert({ from_user: user.id, to_user: toUserId });
@@ -113,7 +107,6 @@ function FriendRequests({ user, onClose, onFriendAdded }) {
     setLoading(false);
   };
 
-  // Aceptar solicitud
   const handleAccept = async (requestId) => {
     const { error } = await supabase
       .from('friend_requests')
@@ -126,7 +119,6 @@ function FriendRequests({ user, onClose, onFriendAdded }) {
     }
   };
 
-  // Rechazar solicitud
   const handleReject = async (requestId) => {
     const { error } = await supabase
       .from('friend_requests')
@@ -143,7 +135,9 @@ function FriendRequests({ user, onClose, onFriendAdded }) {
       <div className="friend-requests-card">
         <div className="fr-header">
           <h2>Amigos</h2>
-          <button className="btn-close" onClick={onClose}>✕</button>
+          <button className="btn-close" onClick={onClose}>
+            <HiXMark size={20} />
+          </button>
         </div>
 
         {/* Buscar usuarios */}
@@ -156,7 +150,10 @@ function FriendRequests({ user, onClose, onFriendAdded }) {
               onChange={(e) => setSearchUsername(e.target.value)}
               placeholder="Nombre de usuario..."
             />
-            <button type="submit" className="btn-search">Buscar</button>
+            <button type="submit" className="btn-search">
+              <HiMagnifyingGlass size={16} style={{ marginRight: 4 }} />
+              Buscar
+            </button>
           </form>
 
           {message && <p className="fr-message">{message}</p>}

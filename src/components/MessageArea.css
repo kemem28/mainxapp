@@ -3,7 +3,7 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  background: #e5ddd5;
+  background: var(--bg-chat);
 }
 
 .message-area-empty {
@@ -11,18 +11,29 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  background: #f0f2f5;
+  background: var(--bg-primary);
 }
 
 .empty-state {
   text-align: center;
-  color: #667781;
+  color: var(--text-secondary);
+}
+
+.empty-state .empty-state-icon {
+  font-size: 64px;
+  color: var(--accent);
+  opacity: 0.6;
+  margin-bottom: 16px;
 }
 
 .empty-state h2 {
-  color: #128c7e;
-  font-size: 28px;
-  margin-bottom: 10px;
+  color: var(--text-primary);
+  font-size: 24px;
+  margin-bottom: 8px;
+}
+
+.empty-state p {
+  font-size: 15px;
 }
 
 /* Header del chat */
@@ -30,8 +41,8 @@
   display: flex;
   align-items: center;
   padding: 10px 20px;
-  background: #f0f2f5;
-  border-bottom: 1px solid #e0e0e0;
+  background: var(--bg-primary);
+  border-bottom: 1px solid var(--border-color);
   gap: 12px;
 }
 
@@ -39,7 +50,7 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: #128c7e;
+  background: var(--accent);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -61,12 +72,13 @@
 .chat-header-info h3 {
   margin: 0;
   font-size: 16px;
+  color: var(--text-primary);
 }
 
 .chat-header-info p {
   margin: 0;
   font-size: 12px;
-  color: #667781;
+  color: var(--text-secondary);
 }
 
 /* Contenedor de mensajes */
@@ -86,8 +98,8 @@
 }
 
 .date-separator span {
-  background: #e1f3fb;
-  color: #333;
+  background: var(--date-separator-bg);
+  color: var(--date-separator-text);
   padding: 5px 14px;
   border-radius: 8px;
   font-size: 12px;
@@ -104,13 +116,13 @@
 
 .message-sent {
   align-self: flex-end;
-  background: #dcf8c6;
+  background: var(--msg-sent-bg);
   border-bottom-right-radius: 4px;
 }
 
 .message-received {
   align-self: flex-start;
-  background: white;
+  background: var(--msg-received-bg);
   border-bottom-left-radius: 4px;
 }
 
@@ -118,6 +130,7 @@
   margin: 0;
   font-size: 14px;
   line-height: 1.4;
+  color: var(--text-primary);
 }
 
 .message-meta {
@@ -130,16 +143,18 @@
 
 .message-time {
   font-size: 11px;
-  color: #667781;
+  color: var(--msg-time-color);
 }
 
 .read-status {
   font-size: 14px;
-  color: #667781;
+  color: var(--msg-read-color);
+  display: flex;
+  align-items: center;
 }
 
 .read-status.read {
-  color: #53bdeb;
+  color: var(--msg-read-active);
 }
 
 /* Archivos */
@@ -159,14 +174,22 @@
   align-items: center;
   gap: 8px;
   padding: 8px 12px;
-  background: rgba(0, 0, 0, 0.05);
+  background: var(--file-link-bg);
   border-radius: 6px;
   text-decoration: none;
-  color: #333;
+  color: var(--text-primary);
+}
+
+.file-link:hover {
+  text-decoration: none;
+  opacity: 0.8;
 }
 
 .file-icon {
   font-size: 20px;
+  color: var(--accent);
+  display: flex;
+  align-items: center;
 }
 
 .file-name {
@@ -177,8 +200,8 @@
 /* Input de mensaje */
 .message-input-area {
   padding: 10px 20px;
-  background: #f0f2f5;
-  border-top: 1px solid #e0e0e0;
+  background: var(--bg-primary);
+  border-top: 1px solid var(--border-color);
 }
 
 .selected-file-preview {
@@ -186,10 +209,11 @@
   align-items: center;
   justify-content: space-between;
   padding: 8px 12px;
-  background: #e8f5e9;
+  background: var(--accent-bg);
   border-radius: 8px;
   margin-bottom: 8px;
   font-size: 13px;
+  color: var(--text-primary);
 }
 
 .selected-file-preview button {
@@ -197,7 +221,9 @@
   border: none;
   cursor: pointer;
   font-size: 16px;
-  color: #667781;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
 }
 
 .message-input-row {
@@ -207,11 +233,20 @@
 }
 
 .btn-attach {
-  font-size: 22px;
+  font-size: 20px;
   cursor: pointer;
-  padding: 5px;
+  padding: 8px;
   display: flex;
   align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  border-radius: 50%;
+  transition: background 0.2s, color 0.2s;
+}
+
+.btn-attach:hover {
+  color: var(--accent);
+  background: var(--bg-hover);
 }
 
 .message-input {
@@ -220,19 +255,24 @@
   border: none;
   border-radius: 24px;
   font-size: 14px;
-  background: white;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
 }
 
 .message-input:focus {
   outline: none;
 }
 
+.message-input::placeholder {
+  color: var(--text-secondary);
+}
+
 .btn-send {
   width: 42px;
   height: 42px;
   border-radius: 50%;
-  background: #128c7e;
-  color: white;
+  background: var(--accent);
+  color: var(--text-on-accent);
   border: none;
   font-size: 18px;
   cursor: pointer;
@@ -243,10 +283,47 @@
 }
 
 .btn-send:hover {
-  background: #0e7a6d;
+  background: var(--accent-hover);
 }
 
 .btn-send:disabled {
-  background: #a0c4bf;
+  background: var(--accent-light);
   cursor: not-allowed;
+}
+
+/* Loading skeleton for messages */
+.messages-skeleton {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  gap: 12px;
+}
+
+.message-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.message-skeleton.sent {
+  align-items: flex-end;
+}
+
+.message-skeleton.received {
+  align-items: flex-start;
+}
+
+.message-skeleton-bubble {
+  height: 40px;
+  width: 200px;
+  border-radius: 10px;
+}
+
+.message-skeleton-bubble.wide {
+  width: 280px;
+}
+
+.message-skeleton-bubble.narrow {
+  width: 140px;
 }

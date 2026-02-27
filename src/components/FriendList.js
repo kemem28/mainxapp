@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
+import { HiChatBubbleLeftRight } from 'react-icons/hi2';
 import './FriendList.css';
 
 function FriendList({ user, selectedFriend, onSelectFriend, refreshTrigger }) {
   const [friends, setFriends] = useState([]);
   const [unreadCounts, setUnreadCounts] = useState({});
+  const [loading, setLoading] = useState(true);
 
-  // Cargar lista de amigos
   useEffect(() => {
     loadFriends();
   }, [user.id, refreshTrigger]);
 
   const loadFriends = async () => {
-    // Buscar amistades aceptadas donde el usuario es from_user o to_user
     const { data: requests } = await supabase
       .from('friend_requests')
       .select('*')
@@ -21,15 +21,14 @@ function FriendList({ user, selectedFriend, onSelectFriend, refreshTrigger }) {
 
     if (!requests || requests.length === 0) {
       setFriends([]);
+      setLoading(false);
       return;
     }
 
-    // Obtener IDs de los amigos
     const friendIds = requests.map((req) =>
       req.from_user === user.id ? req.to_user : req.from_user
     );
 
-    // Obtener perfiles de los amigos
     const { data: profiles } = await supabase
       .from('profiles')
       .select('*')
@@ -37,7 +36,6 @@ function FriendList({ user, selectedFriend, onSelectFriend, refreshTrigger }) {
 
     setFriends(profiles || []);
 
-    // Obtener conteo de mensajes no leídos por amigo
     const { data: unread } = await supabase
       .from('messages')
       .select('sender_id')
@@ -51,9 +49,10 @@ function FriendList({ user, selectedFriend, onSelectFriend, refreshTrigger }) {
       });
       setUnreadCounts(counts);
     }
+
+    setLoading(false);
   };
 
-  // Escuchar nuevos mensajes para actualizar conteos
   useEffect(() => {
     const channel = supabase
       .channel('friend-list-messages')
@@ -76,6 +75,27 @@ function FriendList({ user, selectedFriend, onSelectFriend, refreshTrigger }) {
     };
   }, [user.id]);
 
+  if (loading) {
+    return (
+      <div className="friend-list">
+        <div className="friend-list-header">
+          <h3>Chats</h3>
+        </div>
+        <div className="friend-list-items">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="friend-skeleton">
+              <div className="skeleton skeleton-circle friend-skeleton-avatar" />
+              <div className="friend-skeleton-info">
+                <div className="skeleton friend-skeleton-name" />
+                <div className="skeleton friend-skeleton-user" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="friend-list">
       <div className="friend-list-header">
@@ -84,8 +104,9 @@ function FriendList({ user, selectedFriend, onSelectFriend, refreshTrigger }) {
 
       {friends.length === 0 ? (
         <div className="friend-list-empty">
-          <p>No tienes amigos aún.</p>
-          <p>Usa el botón de agregar amigos para empezar a chatear.</p>
+          <HiChatBubbleLeftRight className="empty-icon" />
+          <p>No tienes amigos aun.</p>
+          <p>Usa el boton de agregar amigos para empezar a chatear.</p>
         </div>
       ) : (
         <div className="friend-list-items">
