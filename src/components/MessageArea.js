@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '../supabaseClient';
+import { HiPaperClip, HiPaperAirplane, HiXMark, HiDocument, HiCheck } from 'react-icons/hi2';
+import { HiChatBubbleLeftRight } from 'react-icons/hi2';
 import './MessageArea.css';
 
 function MessageArea({ user, friend }) {
@@ -7,22 +9,21 @@ function MessageArea({ user, friend }) {
   const [newMessage, setNewMessage] = useState('');
   const [sending, setSending] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
+  const [loadingMessages, setLoadingMessages] = useState(false);
   const messagesEndRef = useRef(null);
   const fileInputRef = useRef(null);
 
-  // Scroll al final cuando hay mensajes nuevos
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  // Cargar mensajes
   useEffect(() => {
     if (!friend) return;
 
+    setLoadingMessages(true);
     loadMessages();
     markMessagesAsRead();
 
-    // Escuchar mensajes nuevos en tiempo real
     const channel = supabase
       .channel(`chat-${user.id}-${friend.id}`)
       .on(
@@ -34,13 +35,11 @@ function MessageArea({ user, friend }) {
         },
         (payload) => {
           const msg = payload.new;
-          // Solo agregar si es de esta conversación
           if (
             (msg.sender_id === user.id && msg.receiver_id === friend.id) ||
             (msg.sender_id === friend.id && msg.receiver_id === user.id)
           ) {
             setMessages((prev) => [...prev, msg]);
-            // Marcar como leído si somos el receptor
             if (msg.receiver_id === user.id) {
               markMessageRead(msg.id);
             }
@@ -82,9 +81,9 @@ function MessageArea({ user, friend }) {
       .order('created_at', { ascending: true });
 
     setMessages(data || []);
+    setLoadingMessages(false);
   };
 
-  // Marcar mensajes recibidos como leídos
   const markMessagesAsRead = async () => {
     await supabase
       .from('messages')
@@ -101,7 +100,6 @@ function MessageArea({ user, friend }) {
       .eq('id', messageId);
   };
 
-  // Enviar mensaje
   const handleSend = async (e) => {
     e.preventDefault();
     if (!newMessage.trim() && !selectedFile) return;
@@ -111,9 +109,7 @@ function MessageArea({ user, friend }) {
     let fileUrl = null;
     let fileName = null;
 
-    // Si hay un archivo, subirlo primero
     if (selectedFile) {
-      // Validar tamaño (máximo 5MB)
       if (selectedFile.size > 5 * 1024 * 1024) {
         alert('El archivo no puede ser mayor a 5MB');
         setSending(false);
@@ -141,7 +137,6 @@ function MessageArea({ user, friend }) {
       fileName = selectedFile.name;
     }
 
-    // Insertar el mensaje
     const { error } = await supabase.from('messages').insert({
       sender_id: user.id,
       receiver_id: friend.id,
@@ -161,7 +156,6 @@ function MessageArea({ user, friend }) {
     setSending(false);
   };
 
-  // Formatear hora del mensaje
   const formatTime = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleTimeString('es-ES', {
@@ -170,7 +164,6 @@ function MessageArea({ user, friend }) {
     });
   };
 
-  // Formatear fecha para separadores
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     const today = new Date();
@@ -187,7 +180,6 @@ function MessageArea({ user, friend }) {
     });
   };
 
-  // Verificar si es una imagen
   const isImage = (fileName) => {
     if (!fileName) return false;
     const ext = fileName.split('.').pop().toLowerCase();
@@ -198,6 +190,7 @@ function MessageArea({ user, friend }) {
     return (
       <div className="message-area-empty">
         <div className="empty-state">
+          <HiChatBubbleLeftRight className="empty-state-icon" />
           <h2>ChatApp</h2>
           <p>Selecciona un amigo para empezar a chatear</p>
         </div>
@@ -205,7 +198,6 @@ function MessageArea({ user, friend }) {
     );
   }
 
-  // Agrupar mensajes por fecha
   let lastDate = '';
 
   return (
@@ -225,68 +217,80 @@ function MessageArea({ user, friend }) {
         </div>
       </div>
 
-      {/* Área de mensajes */}
-      <div className="messages-container">
-        {messages.map((msg) => {
-          const msgDate = formatDate(msg.created_at);
-          let showDateSeparator = false;
+      {/* Area de mensajes */}
+      {loadingMessages ? (
+        <div className="messages-skeleton">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <div key={i} className={`message-skeleton ${i % 2 === 0 ? 'sent' : 'received'}`}>
+              <div className={`skeleton message-skeleton-bubble ${i % 3 === 0 ? 'wide' : i % 3 === 1 ? 'narrow' : ''}`} />
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="messages-container">
+          {messages.map((msg) => {
+            const msgDate = formatDate(msg.created_at);
+            let showDateSeparator = false;
 
-          if (msgDate !== lastDate) {
-            showDateSeparator = true;
-            lastDate = msgDate;
-          }
+            if (msgDate !== lastDate) {
+              showDateSeparator = true;
+              lastDate = msgDate;
+            }
 
-          const isMine = msg.sender_id === user.id;
+            const isMine = msg.sender_id === user.id;
 
-          return (
-            <React.Fragment key={msg.id}>
-              {showDateSeparator && (
-                <div className="date-separator">
-                  <span>{msgDate}</span>
-                </div>
-              )}
-              <div className={`message ${isMine ? 'message-sent' : 'message-received'}`}>
-                {/* Archivo adjunto */}
-                {msg.file_url && (
-                  <div className="message-file">
-                    {isImage(msg.file_name) ? (
-                      <img
-                        src={msg.file_url}
-                        alt={msg.file_name}
-                        className="message-image"
-                      />
-                    ) : (
-                      <a
-                        href={msg.file_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="file-link"
-                      >
-                        <span className="file-icon">📎</span>
-                        <span className="file-name">{msg.file_name}</span>
-                      </a>
-                    )}
+            return (
+              <React.Fragment key={msg.id}>
+                {showDateSeparator && (
+                  <div className="date-separator">
+                    <span>{msgDate}</span>
                   </div>
                 )}
-
-                {/* Texto del mensaje */}
-                {msg.content && <p className="message-text">{msg.content}</p>}
-
-                {/* Hora y estado de lectura */}
-                <div className="message-meta">
-                  <span className="message-time">{formatTime(msg.created_at)}</span>
-                  {isMine && (
-                    <span className={`read-status ${msg.is_read ? 'read' : ''}`}>
-                      {msg.is_read ? '✓✓' : '✓'}
-                    </span>
+                <div className={`message ${isMine ? 'message-sent' : 'message-received'}`}>
+                  {/* Archivo adjunto */}
+                  {msg.file_url && (
+                    <div className="message-file">
+                      {isImage(msg.file_name) ? (
+                        <img
+                          src={msg.file_url}
+                          alt={msg.file_name}
+                          className="message-image"
+                        />
+                      ) : (
+                        <a
+                          href={msg.file_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="file-link"
+                        >
+                          <span className="file-icon"><HiDocument size={20} /></span>
+                          <span className="file-name">{msg.file_name}</span>
+                        </a>
+                      )}
+                    </div>
                   )}
+
+                  {msg.content && <p className="message-text">{msg.content}</p>}
+
+                  <div className="message-meta">
+                    <span className="message-time">{formatTime(msg.created_at)}</span>
+                    {isMine && (
+                      <span className={`read-status ${msg.is_read ? 'read' : ''}`}>
+                        {msg.is_read ? (
+                          <><HiCheck size={14} /><HiCheck size={14} style={{ marginLeft: -8 }} /></>
+                        ) : (
+                          <HiCheck size={14} />
+                        )}
+                      </span>
+                    )}
+                  </div>
                 </div>
-              </div>
-            </React.Fragment>
-          );
-        })}
-        <div ref={messagesEndRef} />
-      </div>
+              </React.Fragment>
+            );
+          })}
+          <div ref={messagesEndRef} />
+        </div>
+      )}
 
       {/* Input de mensaje */}
       <form className="message-input-area" onSubmit={handleSend}>
@@ -300,13 +304,13 @@ function MessageArea({ user, friend }) {
                 if (fileInputRef.current) fileInputRef.current.value = '';
               }}
             >
-              ✕
+              <HiXMark size={16} />
             </button>
           </div>
         )}
         <div className="message-input-row">
           <label className="btn-attach">
-            📎
+            <HiPaperClip size={20} />
             <input
               type="file"
               ref={fileInputRef}
@@ -322,7 +326,11 @@ function MessageArea({ user, friend }) {
             className="message-input"
           />
           <button type="submit" className="btn-send" disabled={sending}>
-            {sending ? '...' : '➤'}
+            {sending ? (
+              <div className="spinner" style={{ width: 20, height: 20, borderWidth: 2 }} />
+            ) : (
+              <HiPaperAirplane size={18} />
+            )}
           </button>
         </div>
       </form>

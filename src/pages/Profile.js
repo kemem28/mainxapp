@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
+import { HiXMark, HiCamera } from 'react-icons/hi2';
 import './Profile.css';
 
 function Profile({ user, onClose }) {
@@ -10,7 +11,6 @@ function Profile({ user, onClose }) {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
 
-  // Cargar datos del perfil
   useEffect(() => {
     const loadProfile = async () => {
       const { data } = await supabase
@@ -30,7 +30,6 @@ function Profile({ user, onClose }) {
     loadProfile();
   }, [user.id]);
 
-  // Guardar cambios del perfil
   const handleSave = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -54,12 +53,10 @@ function Profile({ user, onClose }) {
     setLoading(false);
   };
 
-  // Subir imagen de avatar
   const handleAvatarUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    // Validar tamaño (máximo 2MB)
     if (file.size > 2 * 1024 * 1024) {
       setMessage('La imagen no puede ser mayor a 2MB');
       return;
@@ -85,7 +82,6 @@ function Profile({ user, onClose }) {
 
     setAvatarUrl(data.publicUrl);
 
-    // Guardar la URL en el perfil
     await supabase
       .from('profiles')
       .update({ avatar_url: data.publicUrl })
@@ -100,7 +96,9 @@ function Profile({ user, onClose }) {
       <div className="profile-card">
         <div className="profile-header">
           <h2>Mi Perfil</h2>
-          <button className="btn-close" onClick={onClose}>✕</button>
+          <button className="btn-close" onClick={onClose}>
+            <HiXMark size={20} />
+          </button>
         </div>
 
         <div className="profile-avatar-section">
@@ -114,6 +112,7 @@ function Profile({ user, onClose }) {
             )}
           </div>
           <label className="btn-upload">
+            <HiCamera size={14} />
             Cambiar foto
             <input
               type="file"

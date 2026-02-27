@@ -4,7 +4,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.5);
+  background: var(--overlay-bg);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -12,13 +12,14 @@
 }
 
 .friend-requests-card {
-  background: white;
+  background: var(--bg-secondary);
   padding: 25px;
   border-radius: 12px;
   width: 100%;
   max-width: 450px;
   max-height: 85vh;
   overflow-y: auto;
+  box-shadow: var(--card-shadow);
 }
 
 .fr-header {
@@ -30,13 +31,13 @@
 
 .fr-header h2 {
   margin: 0;
-  color: #128c7e;
+  color: var(--accent);
 }
 
 .fr-section {
   margin-bottom: 20px;
   padding-bottom: 15px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--border-light);
 }
 
 .fr-section:last-child {
@@ -45,7 +46,7 @@
 
 .fr-section h3 {
   font-size: 14px;
-  color: #667781;
+  color: var(--text-secondary);
   margin-bottom: 10px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -59,34 +60,37 @@
 .fr-search-form input {
   flex: 1;
   padding: 10px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--input-border);
   border-radius: 8px;
   font-size: 14px;
+  background: var(--input-bg);
+  color: var(--text-primary);
 }
 
 .fr-search-form input:focus {
   outline: none;
-  border-color: #128c7e;
+  border-color: var(--accent);
 }
 
 .btn-search {
   padding: 10px 16px;
-  background: #128c7e;
-  color: white;
+  background: var(--accent);
+  color: var(--text-on-accent);
   border: none;
   border-radius: 8px;
   cursor: pointer;
   font-size: 14px;
+  transition: background 0.2s;
 }
 
 .btn-search:hover {
-  background: #0e7a6d;
+  background: var(--accent-hover);
 }
 
 .fr-message {
   margin-top: 8px;
   font-size: 13px;
-  color: #667781;
+  color: var(--text-secondary);
 }
 
 .fr-search-result,
@@ -95,7 +99,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 10px;
-  background: #f8f9fa;
+  background: var(--bg-hover);
   border-radius: 8px;
   margin-top: 10px;
 }
@@ -110,7 +114,7 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: #128c7e;
+  background: var(--accent);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -133,26 +137,28 @@
   margin: 0;
   font-weight: 500;
   font-size: 14px;
+  color: var(--text-primary);
 }
 
 .fr-username {
   margin: 0;
   font-size: 12px;
-  color: #667781;
+  color: var(--text-secondary);
 }
 
 .btn-add-friend {
   padding: 8px 14px;
-  background: #128c7e;
-  color: white;
+  background: var(--accent);
+  color: var(--text-on-accent);
   border: none;
   border-radius: 6px;
   cursor: pointer;
   font-size: 13px;
+  transition: background 0.2s;
 }
 
 .btn-add-friend:hover {
-  background: #0e7a6d;
+  background: var(--accent-hover);
 }
 
 .fr-actions {
@@ -162,43 +168,64 @@
 
 .btn-accept {
   padding: 6px 12px;
-  background: #128c7e;
-  color: white;
+  background: var(--accent);
+  color: var(--text-on-accent);
   border: none;
   border-radius: 6px;
   cursor: pointer;
   font-size: 13px;
+  transition: background 0.2s;
 }
 
 .btn-accept:hover {
-  background: #0e7a6d;
+  background: var(--accent-hover);
 }
 
 .btn-reject {
   padding: 6px 12px;
-  background: #e0e0e0;
-  color: #333;
+  background: var(--border-color);
+  color: var(--text-primary);
   border: none;
   border-radius: 6px;
   cursor: pointer;
   font-size: 13px;
+  transition: background 0.2s;
 }
 
 .btn-reject:hover {
-  background: #ccc;
+  background: var(--input-border);
 }
 
 .fr-pending-badge {
   font-size: 12px;
-  color: #f39c12;
-  background: #fef9e7;
+  color: var(--warning-text);
+  background: var(--warning-bg);
   padding: 4px 10px;
   border-radius: 12px;
 }
 
 .fr-empty {
   font-size: 13px;
-  color: #999;
+  color: var(--text-secondary);
   text-align: center;
   padding: 10px;
+}
+
+.btn-close {
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  color: var(--text-secondary);
+  padding: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background 0.2s;
+}
+
+.btn-close:hover {
+  color: var(--text-primary);
+  background: var(--bg-hover);
 }
