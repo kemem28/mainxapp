@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { supabase } from '../supabaseClient';
 import './MessageArea.css';
 
@@ -11,9 +11,31 @@ function MessageArea({ user, friend }) {
   const fileInputRef = useRef(null);
 
   // Scroll al final cuando hay mensajes nuevos
-  const scrollToBottom = () => {
+  const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
+  }, []);
+
+  const loadMessages = useCallback(async () => {
+    const { data } = await supabase
+      .from('messages')
+      .select('*')
+      .or(
+        `and(sender_id.eq.${user.id},receiver_id.eq.${friend.id}),and(sender_id.eq.${friend.id},receiver_id.eq.${user.id})`
+      )
+      .order('created_at', { ascending: true });
+
+    setMessages(data || []);
+  }, [user.id, friend.id]);
+
+  // Marcar mensajes recibidos como leídos
+  const markMessagesAsRead = useCallback(async () => {
+    await supabase
+      .from('messages')
+      .update({ is_read: true })
+      .eq('sender_id', friend.id)
+      .eq('receiver_id', user.id)
+      .eq('is_read', false);
+  }, [friend.id, user.id]);
 
   // Cargar mensajes
   useEffect(() => {
@@ -66,33 +88,11 @@ function MessageArea({ user, friend }) {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [friend?.id]);
+  }, [friend, user.id, loadMessages, markMessagesAsRead]);
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
-
-  const loadMessages = async () => {
-    const { data } = await supabase
-      .from('messages')
-      .select('*')
-      .or(
-        `and(sender_id.eq.${user.id},receiver_id.eq.${friend.id}),and(sender_id.eq.${friend.id},receiver_id.eq.${user.id})`
-      )
-      .order('created_at', { ascending: true });
-
-    setMessages(data || []);
-  };
-
-  // Marcar mensajes recibidos como leídos
-  const markMessagesAsRead = async () => {
-    await supabase
-      .from('messages')
-      .update({ is_read: true })
-      .eq('sender_id', friend.id)
-      .eq('receiver_id', user.id)
-      .eq('is_read', false);
-  };
+  }, [messages, scrollToBottom]);
 
   const markMessageRead = async (messageId) => {
     await supabase
@@ -188,9 +188,9 @@ function MessageArea({ user, friend }) {
   };
 
   // Verificar si es una imagen
-  const isImage = (fileName) => {
-    if (!fileName) return false;
-    const ext = fileName.split('.').pop().toLowerCase();
+  const isImage = (name) => {
+    if (!name) return false;
+    const ext = name.split('.').pop().toLowerCase();
     return ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext);
   };
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../supabaseClient';
 import './FriendRequests.css';
 
@@ -11,11 +11,7 @@ function FriendRequests({ user, onClose, onFriendAdded }) {
   const [loading, setLoading] = useState(false);
 
   // Cargar solicitudes pendientes
-  useEffect(() => {
-    loadRequests();
-  }, [user.id]);
-
-  const loadRequests = async () => {
+  const loadRequests = useCallback(async () => {
     // Solicitudes recibidas (pendientes)
     const { data: received } = await supabase
       .from('friend_requests')
@@ -32,7 +28,11 @@ function FriendRequests({ user, onClose, onFriendAdded }) {
 
     setPendingRequests(received || []);
     setSentRequests(sent || []);
-  };
+  }, [user.id]);
+
+  useEffect(() => {
+    loadRequests();
+  }, [loadRequests]);
 
   // Buscar usuario por username
   const handleSearch = async (e) => {

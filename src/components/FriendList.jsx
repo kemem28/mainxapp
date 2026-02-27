@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../supabaseClient';
 import './FriendList.css';
 
@@ -7,11 +7,7 @@ function FriendList({ user, selectedFriend, onSelectFriend, refreshTrigger }) {
   const [unreadCounts, setUnreadCounts] = useState({});
 
   // Cargar lista de amigos
-  useEffect(() => {
-    loadFriends();
-  }, [user.id, refreshTrigger]);
-
-  const loadFriends = async () => {
+  const loadFriends = useCallback(async () => {
     // Buscar amistades aceptadas donde el usuario es from_user o to_user
     const { data: requests } = await supabase
       .from('friend_requests')
@@ -51,7 +47,11 @@ function FriendList({ user, selectedFriend, onSelectFriend, refreshTrigger }) {
       });
       setUnreadCounts(counts);
     }
-  };
+  }, [user.id]);
+
+  useEffect(() => {
+    loadFriends();
+  }, [loadFriends, refreshTrigger]);
 
   // Escuchar nuevos mensajes para actualizar conteos
   useEffect(() => {
@@ -74,7 +74,7 @@ function FriendList({ user, selectedFriend, onSelectFriend, refreshTrigger }) {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user.id]);
+  }, [user.id, loadFriends]);
 
   return (
     <div className="friend-list">
