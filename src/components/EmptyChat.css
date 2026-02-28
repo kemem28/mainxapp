@@ -1,0 +1,36 @@
+.empty-chat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: var(--bg-primary);
+  text-align: center;
+  padding: 40px;
+}
+
+.empty-chat-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: var(--accent-dim);
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+
+.empty-chat h2 {
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.empty-chat p {
+  font-size: 14px;
+  color: var(--text-secondary);
+  max-width: 280px;
+  line-height: 1.6;
+}
