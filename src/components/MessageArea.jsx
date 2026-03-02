@@ -16,6 +16,7 @@ function MessageArea({ user, friend }) {
   }, []);
 
   const loadMessages = useCallback(async () => {
+    if (!friend) return;
     const { data } = await supabase
       .from('messages')
       .select('*')
@@ -25,17 +26,18 @@ function MessageArea({ user, friend }) {
       .order('created_at', { ascending: true });
 
     setMessages(data || []);
-  }, [user.id, friend.id]);
+  }, [user.id, friend]);
 
   // Marcar mensajes recibidos como leídos
   const markMessagesAsRead = useCallback(async () => {
+    if (!friend) return;
     await supabase
       .from('messages')
       .update({ is_read: true })
       .eq('sender_id', friend.id)
       .eq('receiver_id', user.id)
       .eq('is_read', false);
-  }, [friend.id, user.id]);
+  }, [friend, user.id]);
 
   // Cargar mensajes
   useEffect(() => {
