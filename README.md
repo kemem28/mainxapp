@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # ChatApp - Aplicación de Mensajería
 
 Aplicación web de mensajería en tiempo real construida con React y Supabase.
@@ -53,61 +52,12 @@ REACT_APP_SUPABASE_ANON_KEY=tu-anon-key-aqui
 ```
 
 ### 5. Instalar y ejecutar
-=======
-# 💬 Chattr — App de Mensajería
-
-Aplicación de mensajería en tiempo real construida con React y Supabase.
-
-## ✅ Funcionalidades
-- Registro e inicio de sesión
-- Solicitudes de amistad por nombre de usuario
-- Mensajería en tiempo real
-- Envío de archivos (hasta 5MB)
-- Estado de lectura (✓ / ✓✓)
-- Perfil de usuario editable
-
----
-
-## 🚀 Configuración paso a paso
-
-### 1. Configurar Supabase
-
-1. Ve a [supabase.com](https://supabase.com) y abre tu proyecto
-2. Ve al **SQL Editor**
-3. Pega y ejecuta el contenido de `supabase-setup.sql`
-4. Ve a **Storage** > crea un bucket llamado `chat-files` y márcalo como **Public**
-
-### 2. Obtener credenciales
-
-En Supabase: **Settings > API**
-- Copia la **Project URL**
-- Copia la **anon/public key**
-
-### 3. Configurar el proyecto
-
-```bash
-# Entra a la carpeta
-cd chat-app
-
-# Copia el archivo de entorno
-cp .env.example .env
-```
-
-Abre `.env` y reemplaza los valores:
-```
-REACT_APP_SUPABASE_URL=https://tu-proyecto.supabase.co
-REACT_APP_SUPABASE_ANON_KEY=tu-anon-key
-```
-
-### 4. Instalar y ejecutar
->>>>>>> c1fbf904 (Primer commit - proyecto chat-app)
 
 ```bash
 npm install
 npm start
 ```
 
-<<<<<<< HEAD
 La app se abrirá en `http://localhost:3000`
 
 ## Estructura del Proyecto
@@ -130,35 +80,3 @@ src/
 supabase/
   schema.sql                 # SQL para crear las tablas
 ```
-=======
-La app abrirá en [http://localhost:3000](http://localhost:3000) 🎉
-
----
-
-## 📁 Estructura del proyecto
-
-```
-src/
-├── components/
-│   ├── Sidebar.js       # Panel lateral (chats, amigos, perfil)
-│   ├── ChatWindow.js    # Ventana de mensajes
-│   ├── EmptyChat.js     # Pantalla cuando no hay chat seleccionado
-│   └── ProtectedRoute.js
-├── context/
-│   └── AuthContext.js   # Estado de autenticación global
-├── pages/
-│   ├── AuthPage.js      # Login / Registro
-│   └── HomePage.js      # Layout principal
-├── styles/
-│   └── globals.css      # Variables y estilos globales
-└── utils/
-    └── supabaseClient.js
-```
-
----
-
-## ⚠️ Notas importantes
-
-- El registro envía un email de confirmación. En desarrollo puedes desactivar esto en Supabase: **Authentication > Providers > Email > Confirm email: OFF**
-- El bucket `chat-files` debe ser público para que las imágenes se vean en el chat
->>>>>>> c1fbf904 (Primer commit - proyecto chat-app)
