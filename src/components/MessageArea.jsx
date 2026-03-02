@@ -15,40 +15,42 @@ function MessageArea({ user, friend }) {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, []);
 
+  const friendId = friend?.id;
+
   const loadMessages = useCallback(async () => {
-    if (!friend) return;
+    if (!friendId) return;
     const { data } = await supabase
       .from('messages')
       .select('*')
       .or(
-        `and(sender_id.eq.${user.id},receiver_id.eq.${friend.id}),and(sender_id.eq.${friend.id},receiver_id.eq.${user.id})`
+        `and(sender_id.eq.${user.id},receiver_id.eq.${friendId}),and(sender_id.eq.${friendId},receiver_id.eq.${user.id})`
       )
       .order('created_at', { ascending: true });
 
     setMessages(data || []);
-  }, [user.id, friend]);
+  }, [user.id, friendId]);
 
   // Marcar mensajes recibidos como leídos
   const markMessagesAsRead = useCallback(async () => {
-    if (!friend) return;
+    if (!friendId) return;
     await supabase
       .from('messages')
       .update({ is_read: true })
-      .eq('sender_id', friend.id)
+      .eq('sender_id', friendId)
       .eq('receiver_id', user.id)
       .eq('is_read', false);
-  }, [friend, user.id]);
+  }, [friendId, user.id]);
 
-  // Cargar mensajes
+  // Cargar mensajes y suscribirse a tiempo real
   useEffect(() => {
-    if (!friend) return;
+    if (!friendId) return;
 
     loadMessages();
     markMessagesAsRead();
 
     // Escuchar mensajes nuevos en tiempo real
     const channel = supabase
-      .channel(`chat-${user.id}-${friend.id}`)
+      .channel(`chat-${user.id}-${friendId}`)
       .on(
         'postgres_changes',
         {
@@ -60,10 +62,14 @@ function MessageArea({ user, friend }) {
           const msg = payload.new;
           // Solo agregar si es de esta conversación
           if (
-            (msg.sender_id === user.id && msg.receiver_id === friend.id) ||
-            (msg.sender_id === friend.id && msg.receiver_id === user.id)
+            (msg.sender_id === user.id && msg.receiver_id === friendId) ||
+            (msg.sender_id === friendId && msg.receiver_id === user.id)
           ) {
-            setMessages((prev) => [...prev, msg]);
+            setMessages((prev) => {
+              // Evitar duplicados
+              if (prev.some((m) => m.id === msg.id)) return prev;
+              return [...prev, msg];
+            });
             // Marcar como leído si somos el receptor
             if (msg.receiver_id === user.id) {
               markMessageRead(msg.id);
@@ -90,7 +96,7 @@ function MessageArea({ user, friend }) {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [friend, user.id, loadMessages, markMessagesAsRead]);
+  }, [friendId, user.id, loadMessages, markMessagesAsRead]);
 
   useEffect(() => {
     scrollToBottom();
@@ -127,10 +133,14 @@ function MessageArea({ user, friend }) {
 
       const { error: uploadError } = await supabase.storage
         .from('chat-files')
-        .upload(filePath, selectedFile);
+        .upload(filePath, selectedFile, {
+          cacheControl: '3600',
+          contentType: selectedFile.type,
+        });
 
       if (uploadError) {
-        alert('Error al subir el archivo');
+        console.error('Upload error:', uploadError);
+        alert('Error al subir el archivo: ' + uploadError.message);
         setSending(false);
         return;
       }
