@@ -67,11 +67,15 @@ function Profile({ user, onClose }) {
 
     setLoading(true);
     const fileExt = file.name.split('.').pop();
-    const fileName = `${user.id}/avatar.${fileExt}`;
+    const fileName = `${user.id}/avatar_${Date.now()}.${fileExt}`;
 
     const { error: uploadError } = await supabase.storage
       .from('chat-files')
-      .upload(fileName, file, { upsert: true });
+      .upload(fileName, file, {
+        cacheControl: '3600',
+        contentType: file.type,
+        upsert: false,
+      });
 
     if (uploadError) {
       setMessage('Error al subir la imagen');
