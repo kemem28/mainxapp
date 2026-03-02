@@ -7,10 +7,6 @@ function FriendList({ user, selectedFriend, onSelectFriend, refreshTrigger }) {
   const [unreadCounts, setUnreadCounts] = useState({});
 
   // Cargar lista de amigos
-  useEffect(() => {
-    loadFriends();
-  }, [loadFriends, refreshTrigger]);
-
   const loadFriends = useCallback(async () => {
     // Buscar amistades aceptadas donde el usuario es from_user o to_user
     const { data: requests } = await supabase
@@ -52,6 +48,10 @@ function FriendList({ user, selectedFriend, onSelectFriend, refreshTrigger }) {
       setUnreadCounts(counts);
     }
   }, [user.id]);
+
+  useEffect(() => {
+    loadFriends();
+  }, [loadFriends, refreshTrigger]);
 
   // Escuchar nuevos mensajes para actualizar conteos
   useEffect(() => {

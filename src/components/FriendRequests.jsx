@@ -11,10 +11,6 @@ function FriendRequests({ user, onClose, onFriendAdded }) {
   const [loading, setLoading] = useState(false);
 
   // Cargar solicitudes pendientes
-  useEffect(() => {
-    loadRequests();
-  }, [loadRequests]);
-
   const loadRequests = useCallback(async () => {
     // Solicitudes recibidas (pendientes)
     const { data: received } = await supabase
@@ -33,6 +29,10 @@ function FriendRequests({ user, onClose, onFriendAdded }) {
     setPendingRequests(received || []);
     setSentRequests(sent || []);
   }, [user.id]);
+
+  useEffect(() => {
+    loadRequests();
+  }, [loadRequests]);
 
   // Buscar usuario por username
   const handleSearch = async (e) => {

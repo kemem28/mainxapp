@@ -66,7 +66,7 @@ function MessageArea({ user, friend }) {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user.id, friend, loadMessages, markMessagesAsRead]);
+  }, [user.id, friend?.id, loadMessages, markMessagesAsRead, markMessageRead]);
 
   useEffect(() => {
     scrollToBottom();
@@ -94,12 +94,12 @@ function MessageArea({ user, friend }) {
       .eq('is_read', false);
   }, [user.id, friend?.id]);
 
-  const markMessageRead = async (messageId) => {
+  const markMessageRead = useCallback(async (messageId) => {
     await supabase
       .from('messages')
       .update({ is_read: true })
       .eq('id', messageId);
-  };
+  }, []);
 
   // Enviar mensaje
   const handleSend = async (e) => {
