@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { supabase } from '../supabaseClient';
 import './MessageArea.css';
 
@@ -66,13 +66,13 @@ function MessageArea({ user, friend }) {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [friend?.id]);
+  }, [user.id, friend, loadMessages, markMessagesAsRead]);
 
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
 
-  const loadMessages = async () => {
+  const loadMessages = useCallback(async () => {
     const { data } = await supabase
       .from('messages')
       .select('*')
@@ -82,17 +82,17 @@ function MessageArea({ user, friend }) {
       .order('created_at', { ascending: true });
 
     setMessages(data || []);
-  };
+  }, [user.id, friend?.id]);
 
   // Marcar mensajes recibidos como leídos
-  const markMessagesAsRead = async () => {
+  const markMessagesAsRead = useCallback(async () => {
     await supabase
       .from('messages')
       .update({ is_read: true })
       .eq('sender_id', friend.id)
       .eq('receiver_id', user.id)
       .eq('is_read', false);
-  };
+  }, [user.id, friend?.id]);
 
   const markMessageRead = async (messageId) => {
     await supabase
